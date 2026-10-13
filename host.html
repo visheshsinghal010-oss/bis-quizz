@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Host Control Center | BIS Quiz 2026</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    .qr-large-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      color: #fff;
+      padding: 20px;
+    }
+    .qr-large-modal img {
+      max-width: 420px;
+      width: 90vw;
+      background: #fff;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="app-header">
+    <a href="/" class="brand-wrapper">
+      <div class="bis-badge">BIS HOST</div>
+      <div class="brand-text">
+        <h1>BIS Quiz Host Control Center</h1>
+        <p>Live Monitoring, QR Code & Participant Reports</p>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="/" class="nav-btn nav-btn-outline">📱 Participant View</a>
+      <a href="/leaderboard" class="nav-btn nav-btn-solid">🏆 Live Leaderboard</a>
+    </div>
+  </header>
+
+  <main class="main-content">
+    
+    <!-- Hero QR Code & Join Info -->
+    <div class="host-hero">
+      <div class="qr-box">
+        <h4 style="margin-bottom:8px; font-weight:700; color:#1e293b;">📲 Scan to Join Quiz</h4>
+        <img id="qrCodeImg" src="{{ qr_data_url }}" alt="Quiz Join QR Code">
+        <div style="display:flex; gap:6px; justify-content:center;">
+          <button type="button" class="btn-secondary" style="font-size:12px; padding:6px 12px;" onclick="showLargeQR()">🔍 Enlarge QR</button>
+          <button type="button" class="btn-secondary" style="font-size:12px; padding:6px 12px;" onclick="window.print()">🖨️ Print</button>
+        </div>
+      </div>
+
+      <div>
+        <h2 style="font-size:24px; font-weight:800; color:var(--primary-dark); margin-bottom:8px;">
+          Bureau of Indian Standards (BIS) Quiz Session
+        </h2>
+        <p style="color:var(--text-muted); font-size:14px; margin-bottom:16px;">
+          Project this QR code on a screen or whiteboard. Students scan it using their smartphone camera or Google Lens to enter their Name, Phone, and College ID to begin the 20-minute 30-question exam.
+        </p>
+
+        <!-- Direct Join URL Box -->
+        <div style="background:#f0fdf4; border:1.5px solid #86efac; border-radius:8px; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px;">
+          <div>
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+              <span style="background:#16a34a; color:#fff; font-size:11px; font-weight:800; padding:2px 8px; border-radius:12px;">🌐 UNIVERSAL ACCESS</span>
+              <span style="font-size:12px; color:#15803d; font-weight:600;">Works on all phones, 4G/5G mobile data & any Wi-Fi</span>
+            </div>
+            <a id="joinUrlLink" href="{{ host_join_url }}" target="_blank" style="color:#1e40af; font-weight:800; font-size:16px; word-break:break-all;">
+              {{ host_join_url }}
+            </a>
+          </div>
+          <button type="button" class="btn-secondary" onclick="copyJoinLink()" style="white-space:nowrap; background:#ffffff;">📋 Copy Student Link</button>
+        </div>
+
+        <!-- Public Co-Host Dashboard Link Box -->
+        <div style="background:#eff6ff; border:1.5px solid #93c5fd; border-radius:8px; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px;">
+          <div>
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+              <span style="background:#2563eb; color:#fff; font-size:11px; font-weight:800; padding:2px 8px; border-radius:12px;">👑 PUBLIC HOST DASHBOARD</span>
+              <span style="font-size:12px; color:#1e40af; font-weight:600;">Share this link to make anyone a Co-Host / Organizer</span>
+            </div>
+            <a id="publicHostUrlLink" href="{{ public_host_url }}" target="_blank" style="color:#1d4ed8; font-weight:800; font-size:15px; word-break:break-all;">
+              {{ public_host_url }}
+            </a>
+          </div>
+          <div style="display:flex; gap:6px;">
+            <button type="button" class="btn-secondary" onclick="copyPublicHostLink()" style="white-space:nowrap; background:#ffffff;">📋 Copy Host Link</button>
+            <button type="button" class="btn-secondary" onclick="showCoHostQR()" style="white-space:nowrap; background:#ffffff;">📲 Host QR</button>
+          </div>
+        </div>
+
+        <!-- Custom IP / URL Switcher -->
+        <details style="font-size:13px; color:#475569;">
+          <summary style="cursor:pointer; font-weight:600; color:var(--primary);">Advanced: Change IP / Custom Domain (Click to edit)</summary>
+          <div style="display:flex; gap:8px; margin-top:8px;">
+            <input type="text" id="customUrlInput" value="{{ host_join_url }}" style="flex:1; padding:6px 10px; border:1px solid var(--border); border-radius:6px; font-size:13px;">
+            <button type="button" class="btn-secondary" onclick="updateCustomUrl()">Regenerate QR</button>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- Live Statistics Cards -->
+    <div class="host-stats-row">
+      <div class="stat-card">
+        <div class="stat-card-title">TOTAL REGISTERED</div>
+        <div class="stat-card-num" id="statTotalReg">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-title">COMPLETED EXAMS</div>
+        <div class="stat-card-num" id="statTotalComp" style="color:#059669;">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-title">IN PROGRESS NOW</div>
+        <div class="stat-card-num" id="statInProgress" style="color:#d97706;">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-title">HIGHEST SCORE</div>
+        <div class="stat-card-num" id="statTopScore" style="color:#2563eb;">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-title">AVERAGE SCORE</div>
+        <div class="stat-card-num" id="statAvgScore">0.0</div>
+      </div>
+    </div>
+
+    <!-- Host Export and Sharing Actions -->
+    <div class="quiz-card" style="margin-bottom:24px;">
+      <h3 style="font-size:18px; font-weight:800; color:var(--primary-dark); margin-bottom:10px;">
+        📁 Participant Score Files & Export to Host
+      </h3>
+      <p style="color:var(--text-muted); font-size:14px; margin-bottom:16px;">
+        All participant responses, scores, accuracy, phone numbers, and college IDs are automatically recorded and compiled in separate downloadable files for the host.
+      </p>
+
+      <div class="host-actions-bar">
+        <a href="/api/export-csv" class="btn-export">
+          <span>📥 Download Scores (.CSV / Excel)</span>
+        </a>
+        <a href="/api/export-summary" class="btn-export" style="background:#4338ca;">
+          <span>📄 Download Text Report (.TXT)</span>
+        </a>
+        <button type="button" class="btn-secondary" onclick="copyHostSummaryText()">
+          <span>📋 Copy Formatted Summary</span>
+        </button>
+        <button type="button" class="btn-secondary" onclick="emailReportToHost()">
+          <span>✉️ Share via Email</span>
+        </button>
+        <button type="button" class="btn-secondary" style="color:#b91c1c; border-color:#fca5a5; margin-left:auto;" onclick="confirmResetData()">
+          <span>🗑️ Reset All Data</span>
+        </button>
+      </div>
+
+      <div style="background:#f1f5f9; padding:10px 14px; border-radius:6px; font-size:12px; color:#475569;">
+        💾 <strong>Auto-Saved Local Path:</strong> <code>bis_quiz_app/participants_scores.csv</code> (Updated live on every participant submission)
+      </div>
+    </div>
+
+    <!-- Live Participant Data Table -->
+    <div class="table-card">
+      <div class="table-toolbar">
+        <div>
+          <span style="font-weight:700; font-size:16px;">Participant Records & Submissions</span>
+          <span style="font-size:13px; color:var(--text-muted); margin-left:8px;" id="tableCountBadge">(0)</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <input type="text" id="hostSearchInput" class="search-input" placeholder="🔍 Filter records..." oninput="filterHostTable()">
+          <button type="button" class="btn-secondary" onclick="fetchHostData()">🔄 Refresh</button>
+        </div>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table class="lb-table">
+          <thead>
+            <tr>
+              <th style="width:60px;">Rank</th>
+              <th>Participant Name</th>
+              <th>Phone Number</th>
+              <th>College ID</th>
+              <th>Total Points</th>
+              <th>Correct (30)</th>
+              <th>Speed Bonus</th>
+              <th>Time Taken</th>
+              <th>Submitted At</th>
+            </tr>
+          </thead>
+          <tbody id="hostTableBody">
+            <tr>
+              <td colspan="9" style="text-align:center; padding:30px; color:var(--text-muted);">
+                Waiting for participant submissions...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Enlarge QR Modal (Students) -->
+  <div class="qr-large-modal" id="largeQrModal" onclick="closeLargeQR()">
+    <h2 style="margin-bottom:12px;">Scan with Smartphone Camera to Join BIS Quiz</h2>
+    <img id="modalQrImg" src="{{ qr_data_url }}" alt="Enlarged Candidate QR Code">
+    <p style="margin-top:16px; font-size:18px; font-weight:700;">{{ host_join_url }}</p>
+    <p style="font-size:14px; opacity:0.8; margin-top:4px;">(Click anywhere to close)</p>
+  </div>
+
+  <!-- Co-Host Access QR Modal -->
+  <div class="qr-large-modal" id="coHostQrModal" onclick="closeCoHostQR()">
+    <div style="background:#2563eb; color:#fff; font-size:13px; font-weight:800; padding:4px 14px; border-radius:20px; margin-bottom:12px;">
+      👑 CO-HOST / ORGANIZER ACCESS
+    </div>
+    <h2 style="margin-bottom:12px;">Scan to Open Host Dashboard on Mobile</h2>
+    <img id="coHostModalQrImg" src="{{ host_qr_data_url }}" alt="Co-Host QR Code">
+    <p style="margin-top:16px; font-size:16px; font-weight:700;">{{ public_host_url }}</p>
+    <p style="font-size:13px; opacity:0.8; margin-top:4px;">Grants live participant monitoring, score downloads & control access</p>
+    <p style="font-size:12px; opacity:0.6; margin-top:8px;">(Click anywhere to close)</p>
+  </div>
+
+  <script src="/static/js/host.js"></script>
+</body>
+</html>

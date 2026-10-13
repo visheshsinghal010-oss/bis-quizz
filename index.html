@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BIS Quiz 2026 | Bureau of Indian Standards Knowledge Competition</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="app-header">
+    <a href="/" class="brand-wrapper">
+      <div class="bis-badge">BIS</div>
+      <div class="brand-text">
+        <h1>Bureau of Indian Standards</h1>
+        <p>National Standards Quiz Competition</p>
+      </div>
+    </a>
+    <div class="speed-badge" style="background:#e0f2fe; color:#0369a1;">
+      🔒 Official Candidate Portal
+    </div>
+  </header>
+
+  <!-- Main Registration Section -->
+  <main class="main-content">
+    <div class="quiz-card reg-container">
+      <div class="reg-header">
+        <h2>Participant Registration</h2>
+        <p>Please enter your details to begin the official 30-question BIS Quiz.</p>
+        <div class="highlights-pill">
+          <span>⏱️ 20 Minutes</span>
+          <span>•</span>
+          <span>📝 30 Questions</span>
+          <span>•</span>
+          <span>⚡ Speed Bonus Active</span>
+        </div>
+      </div>
+
+      <!-- Registration Form -->
+      <form id="regForm" onsubmit="handleRegistration(event)">
+        <div class="form-group">
+          <label for="name">Full Name *</label>
+          <input type="text" id="name" name="name" required placeholder="e.g. Rahul Sharma" autocomplete="name">
+          <div class="input-hint">Your name will appear on the final leaderboard & score certificate.</div>
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Mobile Phone Number *</label>
+          <input type="tel" id="phone" name="phone" required placeholder="e.g. 9876543210" pattern="[0-9]{10}" maxlength="10">
+          <div class="input-hint">Enter 10-digit mobile number for identification.</div>
+        </div>
+
+        <div class="form-group">
+          <label for="college_id">College ID / Roll Number *</label>
+          <input type="text" id="college_id" name="college_id" required placeholder="e.g. 21BCE1042 / BT23019">
+          <div class="input-hint">Enter your official College ID card number or enrollment number.</div>
+        </div>
+
+        <!-- Rules Box -->
+        <div class="rules-box">
+          <h4>📌 Exam Guidelines & Scoring Rules</h4>
+          <ul>
+            <li><strong>Timer:</strong> Exactly <strong>20 minutes</strong> (1200 seconds) for 30 multiple-choice questions.</li>
+            <li><strong>Speed Bonus:</strong> Every correct question gives base points, and participants who finish faster receive <strong>bonus speed points</strong>!</li>
+            <li><strong>Auto-Submit:</strong> When the 20-minute countdown expires, your exam will automatically submit.</li>
+            <li><strong>Fair Play:</strong> Do not refresh or close your browser tab during the exam.</li>
+          </ul>
+        </div>
+
+        <div id="errorAlert" style="display:none; color:#dc2626; background:#fee2e2; padding:12px; border-radius:8px; margin-bottom:16px; font-size:14px; text-align:center;"></div>
+
+        <button type="submit" id="submitBtn" class="btn-primary">
+          <span>🚀 Start 30 Questions Quiz</span>
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    async function handleRegistration(e) {
+      e.preventDefault();
+      const btn = document.getElementById("submitBtn");
+      const errBox = document.getElementById("errorAlert");
+      errBox.style.display = "none";
+
+      const name = document.getElementById("name").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const college_id = document.getElementById("college_id").value.trim();
+
+      if (!name || !phone || !college_id) {
+        errBox.textContent = "Please fill in all required fields.";
+        errBox.style.display = "block";
+        return;
+      }
+
+      if (!/^\d{10}$/.test(phone)) {
+        errBox.textContent = "Please enter a valid 10-digit mobile number.";
+        errBox.style.display = "block";
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = "<span>Generating Your 30 Questions... ⏳</span>";
+
+      try {
+        const res = await fetch("/api/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, phone, college_id })
+        });
+        const data = await res.json();
+        if (data.success) {
+          // Clear any old stored answers
+          localStorage.removeItem("bis_quiz_answers");
+          localStorage.removeItem("bis_quiz_marked");
+          window.location.href = data.redirect_url;
+        } else {
+          errBox.textContent = data.message || "Registration failed. Please try again.";
+          errBox.style.display = "block";
+          btn.disabled = false;
+          btn.innerHTML = "<span>🚀 Start 30 Questions Quiz</span>";
+        }
+      } catch (err) {
+        errBox.textContent = "Connection error. Please check server status.";
+        errBox.style.display = "block";
+        btn.disabled = false;
+        btn.innerHTML = "<span>🚀 Start 30 Questions Quiz</span>";
+      }
+    }
+  </script>
+</body>
+</html>

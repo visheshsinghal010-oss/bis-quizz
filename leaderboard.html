@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leaderboard | BIS Quiz 2026</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="app-header">
+    <a href="/" class="brand-wrapper">
+      <div class="bis-badge">BIS</div>
+      <div class="brand-text">
+        <h1>Bureau of Indian Standards</h1>
+        <p>Official Quiz Leaderboard & Standings</p>
+      </div>
+    </a>
+    <div class="speed-badge" style="background:#ecfdf5; color:#065f46;">
+      ✓ Exam Completed
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="lb-header">
+      <h2>🏆 Live Quiz Leaderboard</h2>
+      <p style="color:var(--text-muted); font-size:14px; margin-top:4px;">
+        Rankings are calculated by Total Points (Correct Answers + Speed Bonus). Ties are broken by faster completion time.
+      </p>
+    </div>
+
+    <!-- Personal Highlight Card (Visible if participant completed) -->
+    <div id="personalScoreCard" style="display:none;" class="personal-card">
+      <div class="personal-meta">
+        <h3 id="myGreeting">🎉 Congratulations!</h3>
+        <p id="mySubtext">Your BIS Quiz submission has been evaluated.</p>
+      </div>
+      <div class="personal-stats-grid">
+        <div class="p-stat-box">
+          <div class="p-stat-num" id="myRank">#-</div>
+          <div class="p-stat-txt">Your Rank</div>
+        </div>
+        <div class="p-stat-box">
+          <div class="p-stat-num" id="myTotalPoints">0</div>
+          <div class="p-stat-txt">Total Points</div>
+        </div>
+        <div class="p-stat-box">
+          <div class="p-stat-num" id="myAccuracy">0/30</div>
+          <div class="p-stat-txt">Correct</div>
+        </div>
+        <div class="p-stat-box">
+          <div class="p-stat-num" id="mySpeedBonus">+0</div>
+          <div class="p-stat-txt">Speed Bonus</div>
+        </div>
+        <div class="p-stat-box">
+          <div class="p-stat-num" id="myTimeTaken">00m 00s</div>
+          <div class="p-stat-txt">Time Taken</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Leaderboard Table Card -->
+    <div class="table-card">
+      <div class="table-toolbar">
+        <div>
+          <span style="font-weight:700; font-size:16px;">Rankings</span>
+          <span style="font-size:13px; color:var(--text-muted); margin-left:8px;" id="totalCountBadge">(0 Participants)</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search name or college ID..." oninput="filterTable()">
+          <button type="button" class="btn-secondary" onclick="fetchLeaderboard()" title="Refresh Leaderboard">🔄 Refresh</button>
+        </div>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table class="lb-table">
+          <thead>
+            <tr>
+              <th style="width:70px;">Rank</th>
+              <th>Participant Name</th>
+              <th>College ID</th>
+              <th>Total Points</th>
+              <th>Accuracy</th>
+              <th>Speed Bonus</th>
+              <th>Time Taken</th>
+              <th>Submitted At</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboardBody">
+            <tr>
+              <td colspan="8" style="text-align:center; padding:30px; color:var(--text-muted);">
+                Loading standings...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const HIGHLIGHT_ID = "{{ highlight_id }}";
+  </script>
+  <script src="/static/js/leaderboard.js"></script>
+</body>
+</html>

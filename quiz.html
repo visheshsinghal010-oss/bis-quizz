@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Quiz | Bureau of Indian Standards (BIS)</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+  <!-- Top Sticky Bar -->
+  <header class="app-header">
+    <div class="brand-wrapper">
+      <div class="bis-badge">BIS</div>
+      <div class="brand-text">
+        <h1>BIS Standards Knowledge Exam</h1>
+        <p>30 Questions • Total Duration 20:00</p>
+      </div>
+    </div>
+    <div class="speed-badge">
+      ⚡ Speed Points Active
+    </div>
+  </header>
+
+  <main class="main-content">
+    <!-- Quiz Status & Timer Bar -->
+    <div class="quiz-top-bar">
+      <div class="participant-chip">
+        <div class="chip-avatar">{{ participant.name[0] | upper }}</div>
+        <div class="chip-info">
+          <div class="p-name">{{ participant.name }}</div>
+          <div class="p-id">ID: {{ participant.college_id }}</div>
+        </div>
+      </div>
+
+      <!-- 20-minute countdown timer -->
+      <div class="timer-wrapper" id="timerWrapper">
+        <span style="font-size: 18px;">⏳</span>
+        <div class="timer-text" id="timerDisplay">20:00</div>
+      </div>
+
+      <div>
+        <button type="button" class="btn-submit-exam" onclick="openSubmitModal()">
+          ✓ Submit Exam
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Quiz Area -->
+    <div class="quiz-layout">
+      <!-- Question Container -->
+      <div class="question-box">
+        <div class="question-header">
+          <span class="q-badge" id="qBadge">Question 1 of 30</span>
+          <span class="q-points">Base: 100 pts + Speed Bonus</span>
+        </div>
+
+        <div class="question-statement" id="qStatement">
+          Loading question...
+        </div>
+
+        <div class="options-list" id="optionsContainer">
+          <!-- Options dynamically rendered -->
+        </div>
+
+        <div class="quiz-actions">
+          <div style="display:flex; gap:8px;">
+            <button type="button" class="btn-secondary" id="prevBtn" onclick="prevQuestion()">← Previous</button>
+            <button type="button" class="btn-secondary" onclick="clearCurrentAnswer()">Clear Selection</button>
+            <button type="button" class="btn-warning" id="reviewBtn" onclick="toggleReview()">⭐ Mark Review</button>
+          </div>
+          <div>
+            <button type="button" class="btn-primary" id="nextBtn" onclick="nextQuestion()" style="width: auto; padding: 10px 24px;">Next →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question Navigation Palette -->
+      <aside class="palette-sidebar">
+        <div class="palette-title">Question Palette (30)</div>
+        <div class="palette-legend">
+          <div class="legend-item"><span class="legend-dot dot-answered"></span> Answered (<span id="answeredCount">0</span>)</div>
+          <div class="legend-item"><span class="legend-dot dot-review"></span> Marked Review (<span id="reviewCount">0</span>)</div>
+          <div class="legend-item"><span class="legend-dot dot-unvisited"></span> Unanswered (<span id="unansweredCount">30</span>)</div>
+        </div>
+        <div class="palette-grid" id="paletteGrid">
+          <!-- 30 buttons generated via JS -->
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- Submit Confirmation Modal -->
+  <div class="modal-overlay" id="submitModal">
+    <div class="modal-content">
+      <h3>Submit Your BIS Quiz?</h3>
+      <p style="color:var(--text-muted); font-size:14px;">Once submitted, your final score and speed points will be recorded on the leaderboard.</p>
+
+      <div class="modal-stats">
+        <div>
+          <div class="modal-stat-val" id="modalAnswered">0</div>
+          <div class="modal-stat-lbl">Answered</div>
+        </div>
+        <div>
+          <div class="modal-stat-val" id="modalRemainingQuestions">30</div>
+          <div class="modal-stat-lbl">Unanswered</div>
+        </div>
+        <div>
+          <div class="modal-stat-val" id="modalTimeLeft">20:00</div>
+          <div class="modal-stat-lbl">Time Left</div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" style="flex:1;" onclick="closeSubmitModal()">Return to Exam</button>
+        <button type="button" class="btn-submit-exam" style="flex:1;" id="confirmSubmitBtn" onclick="finalizeSubmission()">Confirm & Submit</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const PARTICIPANT_ID = "{{ participant.id }}";
+  </script>
+  <script src="/static/js/quiz.js"></script>
+</body>
+</html>
